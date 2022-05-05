@@ -145,6 +145,7 @@ namespace Dynamo.ViewModels
             get { return Workspaces.FirstOrDefault(w => w.Model is HomeWorkspaceModel); }
         }
 
+
         public EngineController EngineController { get { return Model.EngineController; } }
 
         public WorkspaceModel CurrentSpace
@@ -1627,6 +1628,12 @@ namespace Dynamo.ViewModels
             this.ShowStartPage = false; // Hide start page if there's one.
         }
 
+        internal void OpenOnboardingGuideFile()
+        {  
+            var jsonDynFile = ResourceUtilities.LoadContentFromResources(GuidesManager.OnboardingGuideWorkspaceEmbeededResource, GetType().Assembly, false, false);
+            OpenFromJson(new Tuple<string, bool>(jsonDynFile, true));
+        }
+
         private bool CanOpen(object parameters)
         {
             var filePath = parameters as string;
@@ -2336,7 +2343,7 @@ namespace Dynamo.ViewModels
         /// <returns>Returns true if the home workspace has been saved and 
         /// cleared, or false otherwise.</returns>
         /// 
-        private bool ClearHomeWorkspaceInternal()
+        internal bool ClearHomeWorkspaceInternal()
         {
             // if the workspace is unsaved, prompt to save
             // otherwise overwrite the home workspace with new workspace

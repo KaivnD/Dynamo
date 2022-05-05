@@ -850,6 +850,7 @@ namespace Dynamo.ViewModels
                 ImageSource = imgSource;
             }
             logic.NodeMessagesClearing += Logic_NodeMessagesClearing;
+            logic.NodeInfoMessagesClearing += Logic_NodeInfoMessagesClearing;
 
             logic_PropertyChanged(this, new PropertyChangedEventArgs(nameof(IsVisible)));
             UpdateBubbleContent();
@@ -901,6 +902,35 @@ namespace Dynamo.ViewModels
             }
         }
 
+        /// <summary>
+        /// Clears the existing messages on a node before it executes and re-evalutes its warnings/errors. 
+        /// </summary>
+        /// <param name="obj"></param>
+        private void Logic_NodeInfoMessagesClearing(NodeModel obj)
+        {
+            if (ErrorBubble == null) return;
+
+            var itemsToRemove = ErrorBubble.NodeMessages.Where(x => x.Style == InfoBubbleViewModel.Style.Info).ToList();
+
+            if (DynamoViewModel.UIDispatcher != null)
+            {
+                DynamoViewModel.UIDispatcher.Invoke(() =>
+                {
+                    foreach (var itemToRemove in itemsToRemove)
+                    {
+                        ErrorBubble.NodeMessages.Remove(itemToRemove);
+                    }
+                });
+            }
+            else
+            {
+                foreach (var itemToRemove in itemsToRemove)
+                {
+                    ErrorBubble.NodeMessages.Remove(itemToRemove);
+                }
+            }
+        }
+
         private void DismissedNodeMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (!(sender is ObservableCollection<InfoBubbleDataPacket> observableCollection)) return;
@@ -944,6 +974,7 @@ namespace Dynamo.ViewModels
             }
 
             NodeModel.NodeMessagesClearing -= Logic_NodeMessagesClearing;
+            NodeModel.NodeInfoMessagesClearing -= Logic_NodeInfoMessagesClearing;
             
             if (ErrorBubble != null) DisposeErrorBubble();
 
@@ -1201,6 +1232,7 @@ namespace Dynamo.ViewModels
         private static SolidColorBrush errorColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#EB5555"));
         // SharedDictionaryManager.DynamoColorsAndBrushesDictionary["NodeWarningColor"];
         private static SolidColorBrush warningColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FAA21B"));
+        private static SolidColorBrush infoColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#6AC0E7"));
         // SharedDictionaryManager.DynamoColorsAndBrushesDictionary["NodePreviewColor"];
         private static SolidColorBrush noPreviewColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#BBBBBB"));
 
@@ -1228,6 +1260,11 @@ namespace Dynamo.ViewModels
                 return warningColor;
             }
 
+            if (NodeModel.State == ElementState.Info)
+            {
+                return infoColor;
+            }
+
             return noPreviewColor;
         }
         /// <summary>
@@ -1239,8 +1276,6 @@ namespace Dynamo.ViewModels
         /// <returns></returns>
         internal SolidColorBrush GetBorderColor()
         {
-            // TODO: What defines 'info' state?
-            bool infoState = false;
             SolidColorBrush result = null;
 
             /*
@@ -1270,10 +1305,10 @@ namespace Dynamo.ViewModels
                     ImgGlyphTwoSource = previewGlyph;
                 }
             }
-            if (infoState)
+            if (NodeModel.State == ElementState.Info)
             {
                 result = (SolidColorBrush)SharedDictionaryManager.DynamoColorsAndBrushesDictionary["NodeInfoColor"];
-                if (ImgGlyphTwoSource != null)
+                if (ImgGlyphTwoSource == null)
                 {
                     ImgGlyphTwoSource = infoGlyph;
                 }
@@ -1282,6 +1317,7 @@ namespace Dynamo.ViewModels
                     ImgGlyphThreeSource = infoGlyph;
                 }
             }
+
             if (NodeModel.State == ElementState.Warning || NodeModel.State == ElementState.PersistentWarning)
             {
                 result = warningColor;
@@ -1344,13 +1380,14 @@ namespace Dynamo.ViewModels
         {
             if (DynamoViewModel == null) return;
 
-            bool hasErrorOrWarning = NodeModel.IsInErrorState || NodeModel.State == ElementState.Warning;
+            bool hasErrorOrWarning = NodeModel.IsInErrorState || NodeModel.State == ElementState.Warning; 
+            bool isNodeStateInfo = NodeModel.State == ElementState.Info;
 
             // Persistent warnings should continue to be displayed even if nodes are not involved in an execution as they can include:
             // 1. Compile-time warnings in CBNs
             // 2. Obsolete nodes with warnings
             // 3. Dummy or unresolved nodes
-            if (NodeModel.State != ElementState.PersistentWarning && !NodeModel.IsInErrorState)
+            if (NodeModel.State != ElementState.PersistentWarning && !NodeModel.IsInErrorState && !isNodeStateInfo)
             {
                 if (!NodeModel.WasInvolvedInExecution || !hasErrorOrWarning) return;
             }
@@ -1366,15 +1403,37 @@ namespace Dynamo.ViewModels
 
             const InfoBubbleViewModel.Direction connectingDirection = InfoBubbleViewModel.Direction.Bottom;
             var packets = new List<InfoBubbleDataPacket>(NodeModel.Infos.Count);
+
+            InfoBubbleViewModel.Style style = InfoBubbleViewModel.Style.None;
+            int styleRank = int.MaxValue;
+
             foreach (var info in NodeModel.Infos)
             {
                 var infoStyle = info.State == ElementState.Error ? InfoBubbleViewModel.Style.Error : InfoBubbleViewModel.Style.Warning;
+                infoStyle = info.State == ElementState.Info ? InfoBubbleViewModel.Style.Info : infoStyle;
+
+                // Set the info bubble style based on the heirarchy of node messages style. 1) Error 2) Warning 3) Info.
+                if (infoStyle == InfoBubbleViewModel.Style.Info && styleRank > 3)
+                {
+                    style = InfoBubbleViewModel.Style.Info;
+                    styleRank = 3;
+                }
+                
+                if (infoStyle == InfoBubbleViewModel.Style.Warning && styleRank > 2)
+                {
+                    style = InfoBubbleViewModel.Style.Warning;
+                    styleRank = 2;
+                }
+
+                if (infoStyle == InfoBubbleViewModel.Style.Error)
+                {
+                    style = InfoBubbleViewModel.Style.Error;
+                    styleRank = 1;
+                }
+
                 var data = new InfoBubbleDataPacket(infoStyle, topLeft, botRight, info.Message, connectingDirection);
                 packets.Add(data);
             }
-            InfoBubbleViewModel.Style style = NodeModel.State == ElementState.Error
-                ? InfoBubbleViewModel.Style.Error
-                : InfoBubbleViewModel.Style.Warning;
 
             ErrorBubble.InfoBubbleStyle = style;
 
@@ -1425,7 +1484,7 @@ namespace Dynamo.ViewModels
             //helpDialog.Show();
 
             OnRequestShowNodeHelp(this, new NodeDialogEventArgs(NodeModel));
-            Analytics.TrackEvent(Actions.Show, Categories.NodeContextMenuOperations, "Help");
+            Analytics.TrackEvent(Actions.ViewDocumentation, Categories.NodeContextMenuOperations, NodeModel.Name);
         }
 
         private bool CanShowHelp(object parameter)

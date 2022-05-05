@@ -25,9 +25,9 @@
 		<ExcludeAssets>all</ExcludeAssets>
 	</PackageReference>
 	<PackageReference Include="DynamoVisualProgramming.LibG_228_0_0" Version="2.13.0.7686" GeneratePathProperty="true" />
-	<PackageReference Include="Greg" Version="2.1.8012.31283" />
-	<PackageReference Include="Newtonsoft.Json" Version="8.0.3" CopyXML="true"/>
-	<PackageReference Include="RestSharp" Version="106.12.0" CopyXML="true"/>
+	<PackageReference Include="Greg" Version="2.1.8122.28281" />
+	<PackageReference Include="Newtonsoft.Json" Version="8.0.3" CopyXML="true" />
+	<PackageReference Include="RestSharp" Version="106.12.0" CopyXML="true" />
     <Reference Include="Analytics.Net.ADP, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\extern\Analytics.NET\Analytics.Net.ADP.dll</HintPath>
@@ -171,6 +171,7 @@
     <Copy SourceFiles="@(LegacyBinariesToBinFolder)" DestinationFolder="$(OutputPath)\" />
     <Copy SourceFiles="@(LegacyBinariesToEn-USFolder)" DestinationFolder="$(OutputPath)\en-US\" />
     <Copy SourceFiles="@(LegacyBinariesToNodesFolder)" DestinationFolder="$(OutputPath)\nodes\" />
+    <Copy SourceFiles="$(SolutionDir)Config\upiconfig.xml" DestinationFolder="$(OutputPath)" />
   </Target>
   <Target Name="AfterBuildOps" AfterTargets="Build" Condition=" '$(OS)' != 'Unix' ">
     <ItemGroup>
