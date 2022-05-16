@@ -116,6 +116,11 @@ namespace Dynamo.Logging
         /// Events Category related to connectors
         /// </summary>
         ConnectorOperations,
+
+        /// <summary>
+        /// Events Category related to group styles
+        /// </summary>
+        GroupStyleOperations,
     }
 
     /// <summary>
@@ -369,6 +374,16 @@ namespace Dynamo.Logging
         /// View event, when user wants to see some information
         /// </summary>
         View,
+
+        /// <summary>
+        /// Show event, when user wants to view Documentation.
+        /// </summary>
+        ViewDocumentation,
+
+        /// <summary>
+        /// Cancel operation, e.g. cancel adding a new group style 
+        /// </summary>
+        Cancel,
     }
 
     /// <summary>
