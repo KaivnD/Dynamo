@@ -44,6 +44,7 @@ using Dynamo.Wpf.Utilities;
 using Dynamo.Wpf.ViewModels.Core;
 using Dynamo.Wpf.Views;
 using Dynamo.Wpf.Views.Debug;
+using Dynamo.Wpf.Views.FileTrust;
 using Dynamo.Wpf.Views.Gallery;
 using Dynamo.Wpf.Windows;
 using HelixToolkit.Wpf.SharpDX;
@@ -59,17 +60,12 @@ namespace Dynamo.Controls
     public partial class DynamoView : Window, IDisposable
     {
         public const string BackgroundPreviewName = "BackgroundPreview";
-
-        //The "Packages" and "Get Started" strings needs to be hardcoded due that are hardcoded in the json file (no need localization)
-        internal static string GetStartedGuideName = "Get Started";
-        internal static string PackagesGuideName = "Packages";
-        internal static string OnboardingGuideName = "Onboarding";
-
         private const int navigationInterval = 100;
         // This is used to determine whether ESC key is being held down
         private bool IsEscKeyPressed = false;
         // internal for testing.
         internal readonly NodeViewCustomizationLibrary nodeViewCustomizationLibrary;
+        private double restoreWidth = 0;
         private DynamoViewModel dynamoViewModel;
         private readonly Stopwatch _timer;
         private StartPageViewModel startPage;
@@ -96,6 +92,8 @@ namespace Dynamo.Controls
         internal ViewExtensionManager viewExtensionManager;
         internal Watch3DView BackgroundPreview { get; private set; }
 
+        private FileTrustWarning warningPopup = null;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -120,7 +118,7 @@ namespace Dynamo.Controls
             tabSlidingWindowStart = tabSlidingWindowEnd = 0;
 
             //Initialize the ViewExtensionManager with the CommonDataDirectory so that view extensions found here are checked first for dll's with signed certificates
-            viewExtensionManager = new ViewExtensionManager(new[] { dynamoViewModel.Model.PathManager.CommonDataDirectory });
+            viewExtensionManager = new ViewExtensionManager(dynamoViewModel.Model.ExtensionManager,new[] { dynamoViewModel.Model.PathManager.CommonDataDirectory });
 
             _timer = new Stopwatch();
             _timer.Start();
@@ -219,6 +217,9 @@ namespace Dynamo.Controls
             this.dynamoViewModel.Model.WorkspaceSaving += OnWorkspaceSaving;
             this.dynamoViewModel.Model.WorkspaceOpened += OnWorkspaceOpened;
             FocusableGrid.InputBindings.Clear();
+            
+            if(warningPopup == null)
+                warningPopup = new FileTrustWarning(this);
         }
         private void OnWorkspaceOpened(WorkspaceModel workspace)
         {
@@ -742,6 +743,9 @@ namespace Dynamo.Controls
             //When the Dynamo window is moved to another place we need to update the Steps location
             if(dynamoViewModel.MainGuideManager != null)
                 dynamoViewModel.MainGuideManager.UpdateGuideStepsLocation();
+
+            if (warningPopup != null && warningPopup.IsOpen)
+                warningPopup.UpdatePopupLocation();
         }
 
         private void DynamoView_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -752,6 +756,9 @@ namespace Dynamo.Controls
             //When the Dynamo window size is changed then we need to update the Steps location
             if (dynamoViewModel.MainGuideManager != null)
                 dynamoViewModel.MainGuideManager.UpdateGuideStepsLocation();
+
+            if (warningPopup != null && warningPopup.IsOpen)
+                warningPopup.UpdatePopupLocation();
         }
 
         private void InitializeLogin()
@@ -924,7 +931,7 @@ namespace Dynamo.Controls
             // Initialize Guide Manager as a member on Dynamo ViewModel so other than guided tour,
             // other part of application can also leverage it.
             dynamoViewModel.MainGuideManager = new GuidesManager(_this, dynamoViewModel);
-
+            GuideFlowEvents.GuidedTourStart += GuideFlowEvents_GuidedTourStart;
             _timer.Stop();
             dynamoViewModel.Model.Logger.Log(String.Format(Wpf.Properties.Resources.MessageLoadingTime,
                                                                      _timer.Elapsed, dynamoViewModel.BrandingResourceProvider.ProductName));
@@ -1016,12 +1023,20 @@ namespace Dynamo.Controls
             {
                 CheckTestFlags();
             }
-            //if feature flags is not yet initalized, subscribe to the event and wait.
+            //if feature flags is not yet initialized, subscribe to the event and wait.
             else
             {
                 DynamoUtilities.DynamoFeatureFlagsManager.FlagsRetrieved += CheckTestFlags;
             }
            
+        }
+
+        private void GuideFlowEvents_GuidedTourStart(GuidedTourStateEventArgs args)
+        {
+            if(sidebarGrid.Visibility != Visibility.Visible || sidebarGrid.ActualWidth < 2)
+            {
+                OnCollapsedLeftSidebarClick(null, null);
+            }
         }
 
         /// <summary>
@@ -1576,6 +1591,7 @@ namespace Dynamo.Controls
             DynamoSelection.Instance.Selection.CollectionChanged -= Selection_CollectionChanged;
 
             dynamoViewModel.RequestUserSaveWorkflow -= DynamoViewModelRequestUserSaveWorkflow;
+            GuideFlowEvents.GuidedTourStart -= GuideFlowEvents_GuidedTourStart;
 
             if (dynamoViewModel.Model != null)
             {
@@ -2247,8 +2263,6 @@ namespace Dynamo.Controls
             UpdateHandleUnhoveredStyle(tb, collapseIcon);
         }
 
-        private double restoreWidth = 0;
-
         private void LibraryClicked(object sender, EventArgs e)
         {
             restoreWidth = sidebarGrid.ActualWidth;
@@ -2428,9 +2442,9 @@ namespace Dynamo.Controls
             //We pass the root UIElement to the GuidesManager so we can found other child UIElements
             try
             {
-                dynamoViewModel.MainGuideManager.LaunchTour(GetStartedGuideName);
+                dynamoViewModel.MainGuideManager.LaunchTour(GuidesManager.GetStartedGuideName);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 sidebarGrid.Visibility = Visibility.Visible;
             }
@@ -2446,7 +2460,7 @@ namespace Dynamo.Controls
         {
             try
             {
-                dynamoViewModel.MainGuideManager.LaunchTour(PackagesGuideName);
+                dynamoViewModel.MainGuideManager.LaunchTour(GuidesManager.PackagesGuideName);
             }
             catch (Exception)
             {
@@ -2454,20 +2468,11 @@ namespace Dynamo.Controls
             }
         }
 
-        private void OnBoardingMenuGuide_Click(object sender, RoutedEventArgs e)
+        private void FileTrustWarning_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if(dynamoViewModel.ClearHomeWorkspaceInternal())
-                {
-                    dynamoViewModel.OpenOnboardingGuideFile();
-                    dynamoViewModel.MainGuideManager.LaunchTour(OnboardingGuideName);
-                }
-            }
-            catch (Exception)
-            {
-                sidebarGrid.Visibility = Visibility.Visible;
-            }
+            var dynViewModel = DataContext as DynamoViewModel;
+            if (dynViewModel.FileTrustViewModel == null) return;
+            dynViewModel.FileTrustViewModel.ShowWarningPopup = true;
         }
 
         public void Dispose()
@@ -2480,6 +2485,9 @@ namespace Dynamo.Controls
 
             // Removing the tab items list handler
             ExtensionTabItems.CollectionChanged -= this.OnCollectionChanged;
+
+            if (warningPopup != null)
+                warningPopup.CleanPopup();
         }
     }
 }
