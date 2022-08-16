@@ -218,8 +218,8 @@ namespace Dynamo.ViewModels
 
                     // Keep DynamoModel.CurrentWorkspace update-to-date
                     int modelIndex = model.Workspaces.IndexOf(currentWorkspaceViewModel.Model);
-                    ExecuteCommand(new DynamoModel.SwitchTabCommand(modelIndex));
-                    (HomeSpaceViewModel as HomeWorkspaceViewModel).UpdateRunStatusMsgBasedOnStates();
+                    ExecuteCommand(new DynamoModel.SwitchTabCommand(modelIndex));                   
+                    (HomeSpaceViewModel as HomeWorkspaceViewModel)?.UpdateRunStatusMsgBasedOnStates();
                 }
             }
         }
@@ -1104,12 +1104,22 @@ namespace Dynamo.ViewModels
                     RaisePropertyChanged("IsPanning");
                     RaisePropertyChanged("IsOrbiting");
                     //RaisePropertyChanged("RunEnabled");
+                    if (!DynamoModel.IsTestMode)
+                    {
+                        ExitGuidedTourIfOpened();
+                    }
                     break;
 
                 case "EnablePresetOptions":
                     RaisePropertyChanged("EnablePresetOptions");
                     break;
             }
+        }
+
+        private void ExitGuidedTourIfOpened()
+        {
+            if (GuideFlowEvents.IsAnyGuideActive)
+                MainGuideManager.ExitTour();
         }
 
         // TODO(Sriram): This method is currently not used, but it should really 
@@ -1974,9 +1984,15 @@ namespace Dynamo.ViewModels
             }
         }
 
-        internal void ShowElement(NodeModel e)
+        /// <summary>
+        /// Attempts to find a NodeModel and focuses the view around it
+        /// Default boolean introduced to allow for this method to be used in Automatic mode
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="forceShowElement"></param>
+        internal void ShowElement(NodeModel e, bool forceShowElement = true)
         {
-            if (HomeSpace.RunSettings.RunType == RunType.Automatic)
+            if (HomeSpace.RunSettings.RunType == RunType.Automatic && forceShowElement)
                 return;
 
             if (!model.CurrentWorkspace.Nodes.Contains(e))
@@ -2356,7 +2372,7 @@ namespace Dynamo.ViewModels
 
         private bool CanCloseHomeWorkspace(object parameter)
         {
-            return HomeSpace.RunSettings.RunEnabled;
+            return HomeSpace.RunSettings.RunEnabled || RunSettings.ForceBlockRun;
         }
 
         /// <summary>
@@ -2906,7 +2922,8 @@ namespace Dynamo.ViewModels
                 && !model.PreferenceSettings.IsTrustedLocation(FileTrustViewModel.DynFileDirectoryName)
                 && (currentWorkspaceViewModel?.IsHomeSpace ?? false) && !ShowStartPage
                 && !FileTrustViewModel.AllowOneTimeTrust
-                && !model.PreferenceSettings.DisableTrustWarnings)
+                && !model.PreferenceSettings.DisableTrustWarnings
+                && !string.IsNullOrWhiteSpace(currentWorkspaceViewModel.FileName))
             {
                 FileTrustViewModel.ShowWarningPopup = true;
                 RunSettings.ForceBlockRun = true;

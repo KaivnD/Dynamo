@@ -88,7 +88,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (Up-to-date).
+        ///   Looks up a localized string similar to (Up to date).
         /// </summary>
         public static string AboutWindowUpToDate {
             get {
@@ -466,6 +466,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pin Wire.
+        /// </summary>
+        public static string ConnectorContextMenuHeaderPinConnector {
+            get {
+                return ResourceManager.GetString("ConnectorContextMenuHeaderPinConnector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select Connected.
         /// </summary>
         public static string ConnectorContextMenuHeaderSelectConnected {
@@ -538,7 +547,25 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy.
+        ///   Looks up a localized string similar to Hide All Wires.
+        /// </summary>
+        public static string ContextMenuConnectionsHideAll {
+            get {
+                return ResourceManager.GetString("ContextMenuConnectionsHideAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show All Wires.
+        /// </summary>
+        public static string ContextMenuConnectionsShowAll {
+            get {
+                return ResourceManager.GetString("ContextMenuConnectionsShowAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Contents.
         /// </summary>
         public static string ContextMenuCopy {
             get {
@@ -678,6 +705,15 @@ namespace Dynamo.Wpf.Properties {
         public static string ContextMenuLacingShortest {
             get {
                 return ResourceManager.GetString("ContextMenuLacingShortest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Node Connections.
+        /// </summary>
+        public static string ContextMenuNodeConnections {
+            get {
+                return ResourceManager.GetString("ContextMenuNodeConnections", resourceCulture);
             }
         }
         
@@ -880,9 +916,9 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Uh oh... something went wrong and {0} has crashed, sorry about that.
+        ///   Looks up a localized string similar to Something went wrong and Dynamo has closed unexpectedly.
         ///
-        ///You will get a chance to save your work..
+        ///Don&apos;t worry, you&apos;ll have the option to save your work..
         /// </summary>
         public static string CrashPromptDialogCrashMessage {
             get {
@@ -909,7 +945,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Submit Bug To Github.
+        ///   Looks up a localized string similar to Submit bug to GitHub.
         /// </summary>
         public static string CrashPromptDialogSubmitBugButton {
             get {
@@ -918,7 +954,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} has crashed.
+        ///   Looks up a localized string similar to {0} has closed unexpectedly.
         /// </summary>
         public static string CrashPromptDialogTitle {
             get {
@@ -3516,6 +3552,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nothing is being dragged. If you see this message, most likely your recent Dynamo interaction is not recommended..
+        /// </summary>
+        public static string InvalidDraggingOperationMessgae {
+            get {
+                return ResourceManager.GetString("InvalidDraggingOperationMessgae", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid URL for login page!.
         /// </summary>
         public static string InvalidLoginUrl {
@@ -4076,6 +4121,24 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The package or one of its dependencies targets a different environment, such as Revit, Civil 3D, Advance Steel, Alias or FormIt. This can cause instability and unexpected problems..
+        /// </summary>
+        public static string MessagePackageTargetOtherHosts2 {
+            get {
+                return ResourceManager.GetString("MessagePackageTargetOtherHosts2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package targets a different host than current host application..
+        /// </summary>
+        public static string MessagePackageTargetOtherHostShort {
+            get {
+                return ResourceManager.GetString("MessagePackageTargetOtherHostShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version {0} of {1} could not be found..
         /// </summary>
         public static string MessagePackageVersionNotFound {
@@ -4550,6 +4613,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Click to view latest news from Dynamo Team..
+        /// </summary>
+        public static string NotificationCenterButtonTooltip {
+            get {
+                return ResourceManager.GetString("NotificationCenterButtonTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to null.
         /// </summary>
         public static string NullString {
@@ -4613,7 +4685,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You&apos;ve finished getting started with Dynamo..
+        ///   Looks up a localized string similar to You&apos;ve finished the Getting Started guide..
         /// </summary>
         public static string OnboardingGuideSurveyText {
             get {
@@ -4680,7 +4752,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Well done! You just ran your first graph in Dynamo. \n\n Stay tuned for more guides on Dynamo basics. In the meantime, continue your learning journey in #Dynamo Primer=https://primer2.dynamobim.org/..
+        ///   Looks up a localized string similar to Well done! You just ran your first graph in Dynamo. \n\nStay tuned for more guides on Dynamo basics. In the meantime, continue your learning journey in #Dynamo Primer=https://primer2.dynamobim.org/ ..
         /// </summary>
         public static string OnboardingSuccessText {
             get {
@@ -5160,7 +5232,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Node and Package Paths.
+        ///   Looks up a localized string similar to Node and Package File Locations.
         /// </summary>
         public static string PackagePathsExpanderName {
             get {
@@ -6194,6 +6266,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Receive notification.
+        /// </summary>
+        public static string PreferencesViewEnableNotificationCenter {
+            get {
+                return ResourceManager.GetString("PreferencesViewEnableNotificationCenter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable T-Spline nodes.
         /// </summary>
         public static string PreferencesViewEnableTSplineNodes {
@@ -6266,7 +6347,16 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New Package Download Directory.
+        ///   Looks up a localized string similar to Notification Center.
+        /// </summary>
+        public static string PreferencesViewNotificationCenter {
+            get {
+                return ResourceManager.GetString("PreferencesViewNotificationCenter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Package Download Path.
         /// </summary>
         public static string PreferencesViewPackageDownloadDirectory {
             get {
@@ -7809,6 +7899,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Package Host Error.
+        /// </summary>
+        public static string TitlePackageTargetOtherHost {
+            get {
+                return ResourceManager.GetString("TitlePackageTargetOtherHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} of {1}.
         /// </summary>
         public static string TooltipCurrentIndex {
@@ -7827,7 +7926,17 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Trusted location.
+        ///   Looks up a localized string similar to A problem occurred when trying to access the location. Dynamo is unable to obtain read/write access to
+        ///{0}.
+        /// </summary>
+        public static string TrustedLocationNotAccessible {
+            get {
+                return ResourceManager.GetString("TrustedLocationNotAccessible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trusted File Locations.
         /// </summary>
         public static string TrustedPathsExpanderName {
             get {
@@ -7846,7 +7955,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No trusted location has been added..
+        ///   Looks up a localized string similar to File location was not added to trusted locations..
         /// </summary>
         public static string TrustLocationSkippedNotification {
             get {
@@ -7864,11 +7973,29 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable To Access Directory.
+        /// </summary>
+        public static string UnableToAccessTrustedDirectory {
+            get {
+                return ResourceManager.GetString("UnableToAccessTrustedDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Removing Package Deprecation.
         /// </summary>
         public static string UndeprecatingPackageMessageBoxTitle {
             get {
                 return ResourceManager.GetString("UndeprecatingPackageMessageBoxTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dynamo cannot ungroup when there is no parent group..
+        /// </summary>
+        public static string UngroupParentGroupWarning {
+            get {
+                return ResourceManager.GetString("UngroupParentGroupWarning", resourceCulture);
             }
         }
         
@@ -8154,7 +8281,7 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Agreement to collect usability data on your use of {0}.
+        ///   Looks up a localized string similar to Agreement to Collect Usability Data.
         /// </summary>
         public static string UsageReportPromptDialogTitle {
             get {

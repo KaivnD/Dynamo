@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
+using ProtoCore.AST.ImperativeAST;
 using ProtoCore.Mirror;
 
 namespace Dynamo.GraphNodeManager.ViewModels
@@ -21,9 +23,9 @@ namespace Dynamo.GraphNodeManager.ViewModels
     /// <summary>
     /// The ViewModel class to represent a Dynamo Node 
     /// </summary>
-    public class NodeViewModel : NotificationObject
+    public class GridNodeViewModel : NotificationObject
     {
-        #region Private Properties
+        #region Private Fields
         private string name = string.Empty;
         private bool stateIsInput = false;
         private bool stateIsOutput = false;
@@ -43,9 +45,14 @@ namespace Dynamo.GraphNodeManager.ViewModels
         private ObservableCollection<NodeInfo> nodeInfos = new ObservableCollection<NodeInfo>();
         private string package;
         private Guid nodeGuid;
+        private bool isRenamed = false;
+        
+        public delegate void EventHandler(object sender, EventArgs args);
+        public event EventHandler BubbleUpdate = delegate { };
+
         #endregion
 
-        #region Public Fields
+        #region Public Properties
         /// <summary>
         /// Node Name
         /// </summary>
@@ -56,7 +63,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 name = NodeModel?.Name;
                 return name;
             }
-            internal set => name = value;
+            internal set
+            {
+                if (name == value) return;
+                name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
         }
         /// <summary>
         /// IsVisible
@@ -68,7 +80,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 statusIsHidden = !NodeModel.IsVisible;
                 return statusIsHidden;
             }
-            internal set => statusIsHidden = value;
+            internal set
+            {
+                if (statusIsHidden == value) return;
+                statusIsHidden = value;
+                RaisePropertyChanged(nameof(StatusIsHidden));
+            }
         }
         /// <summary>
         /// IsInputNode
@@ -80,7 +97,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 stateIsInput = NodeModel.IsSetAsInput;
                 return stateIsInput;
             }
-            internal set => stateIsInput = value;
+            internal set
+            {
+                if (stateIsInput == value) return;
+                stateIsInput = value;
+                RaisePropertyChanged(nameof(StateIsInput));
+            }
         }
         /// <summary>
         /// IsOutputNode
@@ -92,7 +114,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 stateIsOutput = NodeModel.IsSetAsOutput;
                 return stateIsOutput;
             }
-            internal set => stateIsInput = value;
+            internal set
+            {
+                if (stateIsOutput == value) return;
+                stateIsOutput = value;
+                RaisePropertyChanged(nameof(StateIsOutput));
+            }
         }
 
         /// <summary>
@@ -105,7 +132,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 statusIsFrozen = NodeModel.IsFrozen;
                 return statusIsFrozen;
             }
-            internal set => statusIsFrozen = value;
+            internal set
+            {
+                if (statusIsFrozen == value) return;
+                statusIsFrozen = value;
+                RaisePropertyChanged(nameof(StatusIsFrozen));
+            }
         }
 
         /// <summary>
@@ -118,7 +150,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 stateIsFunction = IsNodeOutputFunction(NodeModel.CachedValue);
                 return stateIsFunction;
             }
-            internal set => stateIsFunction = value;
+            internal set
+            {
+                if (stateIsFunction == value) return;
+                stateIsFunction = value;
+                RaisePropertyChanged(nameof(StateIsFunction));
+            }
         }
 
         /// <summary>
@@ -134,7 +171,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 }
                 return issuesHasWarning;
             }
-            internal set => issuesHasWarning = value;
+            internal set
+            {
+                if (issuesHasWarning == value) return;
+                issuesHasWarning = value;
+                RaisePropertyChanged(nameof(IssuesHasWarning));
+            }
         }
 
         /// <summary>
@@ -147,7 +189,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 issuesHasError = NodeModel.IsInErrorState;
                 return issuesHasError;
             }
-            internal set => issuesHasError = value;
+            internal set
+            {
+                if (issuesHasError == value) return;
+                issuesHasError = value;
+                RaisePropertyChanged(nameof(IssuesHasError));
+            }
         }
 
 
@@ -164,7 +211,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 }
                 return isInfo;
             }
-            internal set => isInfo = value;
+            internal set
+            {
+                if (isInfo == value) return;
+                isInfo = value;
+                RaisePropertyChanged(nameof(IsInfo));
+            }
         }
 
         /// <summary>
@@ -178,7 +230,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
 
                 return isEmptyList;
             }
-            internal set => isEmptyList = value;
+            internal set
+            {
+                if (isEmptyList == value) return;
+                isEmptyList = value;
+                RaisePropertyChanged(nameof(IsEmptyList));
+            }
         }
 
         /// <summary>
@@ -188,11 +245,17 @@ namespace Dynamo.GraphNodeManager.ViewModels
         {
             get
             {
-                isNull = NodeModel.CachedValue != null && NodeModel.CachedValue.IsNull;
+                isNull = IsNodeNull(NodeModel.CachedValue);
                 return isNull;
             }
-            internal set => isNull = value;
+            internal set
+            {
+                if (isNull == value) return;
+                isNull = value;
+                RaisePropertyChanged(nameof(IsNull));
+            }
         }
+
         /// <summary>
         /// Number of dismissed alerts - Warnings/Errors in a node
         /// </summary>
@@ -200,10 +263,15 @@ namespace Dynamo.GraphNodeManager.ViewModels
         {
             get
             {
-                dismissedAlertsCount = NodeModel.DismissedAlerts.Count;
+                dismissedAlertsCount = NodeModel.DismissedAlertsCount;
                 return dismissedAlertsCount;
             }
-            internal set => dismissedAlertsCount = value;
+            internal set
+            {
+                if (dismissedAlertsCount == value) return;
+                dismissedAlertsCount = value;
+                RaisePropertyChanged(nameof(DismissedAlertsCount));
+            }
         }
         /// <summary>
         /// If the node is broken or unreferenced
@@ -215,7 +283,12 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 isDummyNode = (NodeModel as DummyNode) != null;
                 return isDummyNode;
             }
-            internal set => isDummyNode = value;
+            internal set
+            {
+                if (isDummyNode == value) return;
+                isDummyNode = value;
+                RaisePropertyChanged(nameof(IsDummyNode));
+            }
         }
         /// <summary>
         /// Test The Number of Info/Warning/Error messages 
@@ -228,8 +301,31 @@ namespace Dynamo.GraphNodeManager.ViewModels
                 infoCount = NodeModel.NodeInfos.Count;
                 return infoCount;
             }
-            internal set => infoCount = value;
+            internal set
+            {
+                if (infoCount == value) return;
+                infoCount = value;
+                RaisePropertyChanged(nameof(InfoCount));
+            }
         }
+        /// <summary>
+        /// Checks if the Node has been Renamed after its creation
+        /// </summary>
+        public bool IsRenamed
+        {
+            get
+            {
+                isRenamed = NodeModel.GetOriginalName() != NodeModel.Name;
+                return isRenamed;
+            }
+            internal set
+            {
+                if (isRenamed == value) return;
+                isRenamed = value;
+                RaisePropertyChanged(nameof(IsRenamed));
+            }
+        }
+
         /// <summary>
         /// The correct icon for the Info Bubble
         /// </summary>
@@ -297,16 +393,62 @@ namespace Dynamo.GraphNodeManager.ViewModels
         #endregion
 
         /// <summary>
-        ///  Returns true only if it IsCollection and has no elements inside
+        ///  Returns true only if the node contains ANY (nested) empty lists 
         /// </summary>
         /// <param name="mirrorData"></param>
         /// <returns></returns>
         private bool IsNodeEmptyList(MirrorData mirrorData)
         {
-            if (mirrorData == null || !mirrorData.IsCollection) return false;
+            if (mirrorData == null) return false;
+            if (mirrorData.IsCollection)
+            {
+                try
+                {
+                    var list = mirrorData.GetElements();
+                    if (!list.ToList().Any()) return true;
 
-            var list = mirrorData.GetElements();
-            return !list.Any();
+                    foreach (var nested in list)
+                    {
+                        if (IsNodeEmptyList(nested))
+                            return true;
+                    }
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if the Node contains ANY (nested) null values
+        /// </summary>
+        /// <param name="mirrorData"></param>
+        /// <returns></returns>
+        private bool IsNodeNull(MirrorData mirrorData)
+        {
+            if (mirrorData == null) return false;
+            if (mirrorData.IsCollection)
+            {
+                try
+                {
+                    var list = mirrorData.GetElements();
+                    foreach (var nested in list)
+                    {
+                        if (IsNodeNull(nested))
+                            return true;
+                    }
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            if (mirrorData.IsNull) return true;
+            return false;
         }
 
         /// <summary>
@@ -318,8 +460,15 @@ namespace Dynamo.GraphNodeManager.ViewModels
         {
             if (mirrorData == null || mirrorData.Class == null) return false;
 
-            if (string.Equals(mirrorData.Class.Name, "Function")) return true;
-            return false;
+            try
+            {
+                if (mirrorData.IsFunction) return true;
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -343,7 +492,7 @@ namespace Dynamo.GraphNodeManager.ViewModels
         private void PopulateNodeInfos()
         {
             int i = 0;
-            NodeModel.NodeInfos.ForEach(ni => nodeInfos.Add(new NodeInfo() { Message = GetNodeMessage(ni.Message), Index = $"{++i}/{NodeModel.NodeInfos.Count}", State = ni.State, HashCode = ni.GetHashCode() }));
+            NodeModel.NodeInfos.ForEach(ni => nodeInfos.Add(new NodeInfo() { Message = GetNodeMessage(ni.Message), Index = $"{++i}/{NodeModel.NodeInfos.Count}", State = ni.State, HashCode = ni.GetHashCode(), Dismissed = IsNodeMessageDismissed(ni.Message) } ));
         }
 
         /// <summary>
@@ -357,6 +506,11 @@ namespace Dynamo.GraphNodeManager.ViewModels
             return NodeModel.DismissedAlerts.Contains(message) ? $"{message} (dismissed)" : message;
         }
 
+        private bool IsNodeMessageDismissed(string message)
+        {
+            return NodeModel.DismissedAlerts.Contains(message);
+        }
+
         #region Setup and Constructors
         internal NodeModel NodeModel { get; set; }
 
@@ -364,11 +518,86 @@ namespace Dynamo.GraphNodeManager.ViewModels
         /// Constructor
         /// </summary>
         /// <param name="node"></param>
-        public NodeViewModel(NodeModel node)
+        public GridNodeViewModel(NodeModel node)
         {
             NodeModel = node;
+
+            NodeModel.Modified += NodeModel_Modified;
+            NodeModel.PropertyChanged += NodeModel_PropertyChanged;
         }
-        
+
+        private void NodeModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            EvaluateNode(sender as NodeModel, e.PropertyName);
+        }
+
+        private void NodeModel_Modified(NodeModel nodeModel)
+        {
+            EvaluateNode(nodeModel);
+        }
+
+        /// <summary>
+        /// In case a Node has been modified in any way, update the affected property 
+        /// </summary>
+        /// <param name="nodeModel"></param>
+        /// <param name="propertyName"></param>
+        private void EvaluateNode(NodeModel nodeModel, string propertyName = "Modified")
+        {
+            switch (propertyName)
+            {
+                case nameof(nodeModel.Name):
+                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged(nameof(IsRenamed));
+                    break;
+                case nameof(nodeModel.IsVisible):
+                    RaisePropertyChanged(nameof(StatusIsHidden));
+                    break;
+                case nameof(nodeModel.IsSetAsInput):
+                    RaisePropertyChanged(nameof(StateIsInput));
+                    break;
+                case nameof(nodeModel.IsSetAsOutput):
+                    RaisePropertyChanged(nameof(StateIsOutput));
+                    break;
+                case nameof(nodeModel.IsInErrorState):
+                    RaisePropertyChanged(nameof(IssuesHasError));
+                    break;
+                case nameof(nodeModel.IsFrozen):
+                    RaisePropertyChanged(nameof(StatusIsFrozen));
+                    UpdateDownstreamNodes(nodeModel);
+                    break;
+                case nameof(nodeModel.State):
+                    RaisePropertyChanged(nameof(State));
+                    break;
+                case nameof(nodeModel.DismissedAlertsCount):
+                    RaisePropertyChanged(nameof(DismissedAlertsCount));
+                    RaisePropertyChanged(nameof(NodeInfos));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// In case an Input Node is frozen, only the input node triggers RaisePropertyChange
+        /// All the downstream Nodes won't RaisePropertyChange for IsFrozen (although they will report correctly that they are)
+        /// We need to manually update the view in this case
+        /// </summary>
+        /// <param name="nodeModel"></param>
+        private void UpdateDownstreamNodes(NodeModel nodeModel)
+        {
+            if (nodeModel.OutputNodes.Count > 0)
+            {
+                BubbleUpdate(nodeModel, new EventArgs());
+            }
+        }
+
+        /// <summary>
+        /// Detach from all event handlers
+        /// </summary>
+        public void Dispose()
+        {
+            NodeModel.Modified -= NodeModel_Modified;
+            NodeModel.PropertyChanged -= NodeModel_PropertyChanged;
+        }
+
         #endregion
 
     }

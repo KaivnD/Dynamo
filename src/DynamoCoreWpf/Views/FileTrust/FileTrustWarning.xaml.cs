@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using Dynamo.Controls;
+using Dynamo.Graph.Workspaces;
 using Dynamo.Models;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Utilities;
@@ -40,16 +41,34 @@ namespace Dynamo.Wpf.Views.FileTrust
             DataContext = fileTrustWarningViewModel;
 
             if (dynamoViewWindow == null) return;
-          
+
             //Creating the background of the Popup
             BackgroundRectangle.Rect = new Rect(fileTrustWarningViewModel.PopupBordersOffSet, fileTrustWarningViewModel.PopupBordersOffSet, fileTrustWarningViewModel.PopupRectangleWidth, fileTrustWarningViewModel.PopupRectangleHeight);
             SetUpPopup();
+
+            HomeWorkspaceModel.WorkspaceClosed += CloseWarningPopup;
+            dynViewModel.PropertyChanged += DynViewModel_PropertyChanged;
+        }
+
+        private void DynViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DynamoViewModel.CurrentSpace))
+            {
+                if (dynViewModel.ViewingHomespace)
+                {
+                    ManagePopupActivation(true);
+                }
+                else
+                {
+                    IsOpen = false;
+                }
+            }
         }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             //When the ShowWarningPopup property is changed we need to enable or disable the Dynamo Run section
-            if (e.PropertyName == nameof(FileTrustWarningViewModel.ShowWarningPopup) )
+            if (e.PropertyName == nameof(FileTrustWarningViewModel.ShowWarningPopup))
             {
                 var fileTrustWarningViewModel = sender as FileTrustWarningViewModel;
                 if (fileTrustWarningViewModel == null) return;
@@ -59,12 +78,11 @@ namespace Dynamo.Wpf.Views.FileTrust
                     //Force to run all the drawing events in the Dispatcher so later we can disable the button/combobox in the Run section
                     mainWindow.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                     DisableRunInteractivity();
-                }                   
+                }
                 else
                 {
                     EnableRunInteractivity();
                 }
-                    
             }
         }
 
@@ -111,6 +129,7 @@ namespace Dynamo.Wpf.Views.FileTrust
         private void CloseFileButton_Click(object sender, RoutedEventArgs e)
         {
             fileTrustWarningViewModel.ShowWarningPopup = false;
+            fileTrustWarningViewModel.DynFileDirectoryName = string.Empty;
             if (dynViewModel.CloseHomeWorkspaceCommand.CanExecute(null))
             {
                 dynViewModel.CloseHomeWorkspaceCommand.Execute(null);
@@ -125,10 +144,11 @@ namespace Dynamo.Wpf.Views.FileTrust
         {
             fileTrustWarningViewModel.AllowOneTimeTrust = true;
             fileTrustWarningViewModel.ShowWarningPopup = false;
+
             RunSettings.ForceBlockRun = false;
             if (FileTrustWarningCheckBox.IsChecked.Value == true)
             {
-                if(dynViewModel.PreferenceSettings.AddTrustedLocation(fileTrustWarningViewModel.DynFileDirectoryName))
+                if (dynViewModel.PreferenceSettings.AddTrustedLocation(fileTrustWarningViewModel.DynFileDirectoryName))
                     dynViewModel.MainGuideManager.CreateRealTimeInfoWindow(string.Format(Properties.Resources.TrustLocationAddedNotification, fileTrustWarningViewModel.DynFileDirectoryName));
             }
             if (dynViewModel.CurrentSpaceViewModel.RunSettingsViewModel.Model.RunType != RunType.Manual)
@@ -140,6 +160,8 @@ namespace Dynamo.Wpf.Views.FileTrust
                 (dynViewModel.HomeSpaceViewModel as HomeWorkspaceViewModel).CurrentNotificationMessage = Properties.Resources.RunReady;
                 (dynViewModel.HomeSpaceViewModel as HomeWorkspaceViewModel).CurrentNotificationLevel = NotificationLevel.Mild;
             }
+
+            fileTrustWarningViewModel.DynFileDirectoryName = string.Empty;
         }
 
         /// <summary>
@@ -158,10 +180,24 @@ namespace Dynamo.Wpf.Views.FileTrust
         internal void CleanPopup()
         {
             if (fileTrustWarningViewModel != null)
-            { 
+            {
                 fileTrustWarningViewModel.PropertyChanged -= ViewModel_PropertyChanged;
                 fileTrustWarningViewModel.DynFileDirectoryName = string.Empty;
             }
+
+            HomeWorkspaceModel.WorkspaceClosed -= CloseWarningPopup;
+            dynViewModel.PropertyChanged -= DynViewModel_PropertyChanged;
+        }
+
+        /// <summary>
+        /// This method will show/hide the Popup when the main window is Activated or Deactivated
+        /// </summary>
+        internal void ManagePopupActivation(bool activate)
+        {
+            if (dynViewModel.FileTrustViewModel.ShowWarningPopup == !activate &&
+               !string.IsNullOrEmpty(dynViewModel.FileTrustViewModel.DynFileDirectoryName) &&
+               RunSettings.ForceBlockRun == true)
+                IsOpen = activate;
         }
 
         private void SetUpPopup()
@@ -170,6 +206,15 @@ namespace Dynamo.Wpf.Views.FileTrust
             {
                 fileTrustWarningViewModel.PropertyChanged += ViewModel_PropertyChanged;
             }
+        }
+
+        /// <summary>
+        /// Close the warning popup
+        /// </summary>
+        internal void CloseWarningPopup()
+        {
+            fileTrustWarningViewModel.ShowWarningPopup = false;
+            fileTrustWarningViewModel.DynFileDirectoryName = string.Empty;
         }
     }
 }

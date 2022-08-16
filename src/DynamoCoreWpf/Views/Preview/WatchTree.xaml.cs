@@ -21,6 +21,7 @@ namespace Dynamo.Controls
         private readonly int defaultHeightSize = 200;
         private readonly int minWidthSize = 100;
         private readonly int minHeightSize = 38;
+        private readonly int minHeightForList = 83;
 
         public WatchTree(WatchViewModel vm)
         {
@@ -54,25 +55,30 @@ namespace Dynamo.Controls
         {
             if (e.PropertyName == nameof(WatchViewModel.IsCollection))
             {
-                if (_vm.IsCollection)
+                // // The WatchTree controll will resize only if its role is a WatchNode (starts with an specific height), otherwise it won't resize (Bubble role).
+                if (!Double.IsNaN(this.Height))
                 {
-                    this.Height = defaultHeightSize;
-                }
-                else
-                {
-                    this.Height = minHeightSize;
-                    if (_vm.Children.Count !=0)
+                    if (_vm.IsCollection)
                     {
-                        if (NodeLabel.Contains(Environment.NewLine) || NodeLabel.ToUpper() == nameof(WatchViewModel.DICTIONARY))
+                        this.Height = defaultHeightSize;
+                        this.inputGrid.MinHeight = minHeightForList;
+                    }
+                    else
+                    {
+                        this.Height = minHeightSize;
+                        if (_vm.Children.Count != 0)
                         {
-                            this.Height = defaultHeightSize;
+                            if (NodeLabel.Contains(Environment.NewLine) || NodeLabel.ToUpper() == nameof(WatchViewModel.DICTIONARY))
+                            {
+                                this.Height = defaultHeightSize;
+                            }
                         }
-                    }                    
-                }
-                // When it doesn't have any element, it should be set back the width to the default.
-                if (_vm.Children != null && _vm.Children.Count == 0)
-                {
-                    this.Width = defaultWidthSize;
+                    }
+                    // When it doesn't have any element, it should be set back the width to the default.
+                    if (_vm.Children != null && _vm.Children.Count == 0)
+                    {
+                        this.Width = defaultWidthSize;
+                    }
                 }
             }
             else if (e.PropertyName == nameof(WatchViewModel.Children))
@@ -89,7 +95,7 @@ namespace Dynamo.Controls
                             requiredWidth = MaxWidthSize;
                         }
                         requiredWidth += extraWidthSize;
-                        this.Width = requiredWidth;                        
+                        this.Width = requiredWidth;
                     }
                     else
                     {
