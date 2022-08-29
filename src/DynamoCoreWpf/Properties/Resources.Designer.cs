@@ -2696,6 +2696,15 @@ namespace Dynamo.Wpf.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DynamoCoreWpf;FileTrustWarningDocumentation.html.
+        /// </summary>
+        public static string FileTrustWarningDocumentationUriString {
+            get {
+                return ResourceManager.GetString("FileTrustWarningDocumentationUriString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No, close file.
         /// </summary>
         public static string FileTrustWarningPopupNoCloseFile {
@@ -3332,6 +3341,24 @@ namespace Dynamo.Wpf.Properties {
         public static string InCanvasZoomOutButtonToolTip {
             get {
                 return ResourceManager.GetString("InCanvasZoomOutButtonToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload Error.
+        /// </summary>
+        public static string InfectedPackageErrorString {
+            get {
+                return ResourceManager.GetString("InfectedPackageErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is an infected package. Please upload a clean version..
+        /// </summary>
+        public static string InfectedPackageMessageString {
+            get {
+                return ResourceManager.GetString("InfectedPackageMessageString", resourceCulture);
             }
         }
         
@@ -6568,6 +6595,24 @@ namespace Dynamo.Wpf.Properties {
         public static string PreferencesWindowLanguages {
             get {
                 return ResourceManager.GetString("PreferencesWindowLanguages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your package will be scanned for viruses, and will be available for download once it successfully passes the scan..
+        /// </summary>
+        public static string PrePackagePublishMessage {
+            get {
+                return ResourceManager.GetString("PrePackagePublishMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package Upload Scan.
+        /// </summary>
+        public static string PrePackagePublishTitle {
+            get {
+                return ResourceManager.GetString("PrePackagePublishTitle", resourceCulture);
             }
         }
         
