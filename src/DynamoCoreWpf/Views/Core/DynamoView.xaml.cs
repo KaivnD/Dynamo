@@ -42,15 +42,18 @@ using Dynamo.Wpf.Extensions;
 using Dynamo.Wpf.UI.GuidedTour;
 using Dynamo.Wpf.Utilities;
 using Dynamo.Wpf.ViewModels.Core;
-using Dynamo.Wpf.ViewModels.FileTrust;
 using Dynamo.Wpf.Views;
 using Dynamo.Wpf.Views.Debug;
 using Dynamo.Wpf.Views.FileTrust;
 using Dynamo.Wpf.Views.Gallery;
 using Dynamo.Wpf.Windows;
 using HelixToolkit.Wpf.SharpDX;
-using Res = Dynamo.Wpf.Properties.Resources;
+using Brush = System.Windows.Media.Brush;
+using Exception = System.Exception;
+using Image = System.Windows.Controls.Image;
+using Point = System.Windows.Point;
 using ResourceNames = Dynamo.Wpf.Interfaces.ResourceNames;
+using Size = System.Windows.Size;
 using String = System.String;
 
 namespace Dynamo.Controls
@@ -230,6 +233,10 @@ namespace Dynamo.Controls
             if (fileTrustWarningPopup == null)
             {
                 fileTrustWarningPopup = new FileTrustWarning(this);
+            }
+            if (!DynamoModel.IsTestMode && Application.Current != null)
+            {
+                Application.Current.MainWindow = this;
             }
         }
         private void OnWorkspaceOpened(WorkspaceModel workspace)
@@ -1072,25 +1079,27 @@ namespace Dynamo.Controls
         /// </summary>
         private void CheckTestFlags()
         {
+            if (!DynamoModel.IsTestMode)
+            {
+                //feature flag test.
+                if (DynamoModel.FeatureFlags?.CheckFeatureFlag<bool>("EasterEggIcon1", false) == true)
+                {
+                    dynamoViewModel.Model.Logger.Log("EasterEggIcon1 is true from view");
+                }
+                else
+                {
+                    dynamoViewModel.Model.Logger.Log("EasterEggIcon1 is false from view");
+                }
 
-            //feature flag test.
-            if (DynamoModel.FeatureFlags?.CheckFeatureFlag<bool>("EasterEggIcon1", false) == true)
-            {
-                dynamoViewModel.Model.Logger.Log("EasterEggIcon1 is true from view");
-            }
-            else
-            {
-                dynamoViewModel.Model.Logger.Log("EasterEggIcon1 is false from view");
-            }
-
-            if (DynamoModel.FeatureFlags?.CheckFeatureFlag<string>("EasterEggMessage1", "NA") is string ffs && ffs != "NA")
-            {
-                dynamoViewModel.Model.Logger.Log("EasterEggMessage1 is enabled from view");
-                MessageBoxService.Show(this, ffs, "EasterEggMessage1", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-            }
-            else
-            {
-                dynamoViewModel.Model.Logger.Log("EasterEggMessage1 is disabled from view");
+                if (DynamoModel.FeatureFlags?.CheckFeatureFlag<string>("EasterEggMessage1", "NA") is string ffs && ffs != "NA")
+                {
+                    dynamoViewModel.Model.Logger.Log("EasterEggMessage1 is enabled from view");
+                    MessageBoxService.Show(this, ffs, "EasterEggMessage1", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                }
+                else
+                {
+                    dynamoViewModel.Model.Logger.Log("EasterEggMessage1 is disabled from view");
+                }
             }
         }
 
@@ -1330,10 +1339,27 @@ namespace Dynamo.Controls
 
         private void DynamoViewModelRequestSave3DImage(object sender, ImageSaveEventArgs e)
         {
-            var bitmapSource =BackgroundPreview.View.RenderBitmap();
-            //this image only really needs 24bits per pixel but to match previous implementation we'll use 32bit images.
-            var rtBitmap = new RenderTargetBitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, 96, 96,
-     PixelFormats.Pbgra32);
+            var dpiX = 0.0;
+            var dpiY = 0.0;
+
+            // dpi aware, otherwise incorrect images are created
+            try
+            {
+                var scale = VisualTreeHelper.GetDpi(this);
+                dpiX = scale.PixelsPerInchX;
+                dpiY = scale.PixelsPerInchY;
+            }
+            catch (Exception ex)
+            {
+                Log(ex.ToString());
+
+                dpiX = 96;
+                dpiY = 96;
+            }
+            
+            var bitmapSource = BackgroundPreview.View.RenderBitmap();
+            // this image only really needs 24bits per pixel but to match previous implementation we'll use 32bit images.
+            var rtBitmap = new RenderTargetBitmap(bitmapSource.PixelWidth, bitmapSource.PixelHeight, dpiX, dpiY, PixelFormats.Pbgra32);
             rtBitmap.Render(BackgroundPreview.View);
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(rtBitmap));
@@ -1552,7 +1578,7 @@ namespace Dynamo.Controls
             }
             else
             {
-                //Shutdown was cancelled
+                //Shutdown was canceled
                 return false;
             }
         }

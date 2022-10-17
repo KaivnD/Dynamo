@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -167,7 +167,7 @@
     <value>Default Background Preview</value>
   </data>
   <data name="BackgroundPreviewName" xml:space="preserve">
-    <value>Background Preview</value>
+    <value>_Background Preview</value>
     <comment>The name of the 3D background preview.</comment>
   </data>
   <data name="BrowserNodeButtonLabel" xml:space="preserve">
@@ -914,7 +914,7 @@ Don't worry, you'll have the option to save your work.</value>
     <comment>View menu | Show geometry in some context</comment>
   </data>
   <data name="DynamoViewViewMenuAvailablePreviews" xml:space="preserve">
-    <value>Available Previews</value>
+    <value>_Available Previews</value>
   </data>
   <data name="DynamoViewViewMenuConnector" xml:space="preserve">
     <value>_Connectors</value>
@@ -957,7 +957,7 @@ Don't worry, you'll have the option to save your work.</value>
     <comment>View menu | Pan up</comment>
   </data>
   <data name="DynamoViewViewMenuPreviewNavigate" xml:space="preserve">
-    <value>Navigate Background 3D Preview</value>
+    <value>_Navigate Background 3D Preview</value>
     <comment>View menu | Navigate background 3D preview</comment>
   </data>
   <data name="DynamoViewViewMenuShowBackground3DPreview" xml:space="preserve">
@@ -973,7 +973,7 @@ Don't worry, you'll have the option to save your work.</value>
     <comment>View menu | Show console</comment>
   </data>
   <data name="DynamoViewViewMenuShowGrid" xml:space="preserve">
-    <value>Show Grid</value>
+    <value>_Show Grid</value>
     <comment>View menu | Show Grid</comment>
   </data>
   <data name="DynamoViewViewMenuZoom" xml:space="preserve">
@@ -2323,6 +2323,18 @@ Uninstall the following packages: {0}?</value>
     <value>Default Run Settings</value>
     <comment>Label used in the general tab</comment>
   </data>
+  <data name="PreferencesNodeAutocompleteMethod" xml:space="preserve">
+    <value>Default method</value>
+    <comment>Label used in the features tab</comment>
+  </data>
+  <data name="ObjectType" xml:space="preserve">
+    <value>Object type</value>
+    <comment>Label used in the features tab</comment>
+  </data>
+  <data name="MachineLearning" xml:space="preserve">
+    <value>Machine Learning</value>
+    <comment>Label used in the features tab</comment>
+  </data>
   <data name="DynamoViewExtensionsMenu" xml:space="preserve">
     <value>E_xtensions</value>
     <comment>Extensions menu</comment>
@@ -2691,6 +2703,10 @@ Delete the following packages: {2}?
   <data name="ContextMenu" xml:space="preserve">
     <value>Node Options</value>
     <comment>Node context menu</comment>
+  </data>
+  <data name="NodeAutocomplete" xml:space="preserve">
+    <value>Sort results by</value>
+    <comment>Node context tooltip</comment>
   </data>
   <data name="PackageFilter_Name_All" xml:space="preserve">
     <value>All</value>
@@ -3295,5 +3311,56 @@ You can manage this in Preferences -&gt; Security.</value>
   </data>
   <data name="PrePackagePublishTitle" xml:space="preserve">
     <value>Package Upload Scan</value>
+  </data>
+  <data name="ImportPreferencesInfo" xml:space="preserve">
+   <value>Your custom settings can be imported here. It will be applied once Dynamo and any host program restarts</value>
+   <comment>Import Preferences Info.</comment>
+  </data>
+  <data name="ImportPreferencesText" xml:space="preserve">
+   <value>Import</value>
+   <comment>Import Preferences Text.</comment>
+  </data>
+  <data name="ExportPreferencesText" xml:space="preserve">
+   <value>Export</value>
+   <comment>Export Preferences Text.</comment>
+  </data>
+  <data name="ExportSettingsDialogTitle" xml:space="preserve">
+   <value>Select Folder to Export</value>
+  </data>
+  <data name="FileDialogImportSettingsFiles" xml:space="preserve">
+   <value>Settings Files ({0})|{0}</value>
+  </data>
+  <data name="ImportSettingsDialogTitle" xml:space="preserve">
+   <value>Import Settings</value>
+  </data>
+  <data name="ImportSettingsSuccessMessage" xml:space="preserve">
+   <value>Import Success</value>
+  </data>
+  <data name="ImportSettingsFailedMessage" xml:space="preserve">
+   <value>Import Failed</value>
+  </data>
+  <data name="PreferencesSettingHardwareAcceleration" xml:space="preserve">
+    <value>Use Hardware Acceleration</value>
+  </data>
+  <data name="PreferencesSettingCustomPythomTemplate" xml:space="preserve">
+    <value>Custom Python Template File Path</value>
+    <comment>Preferences | Features | Python | Python Template File</comment>
+  </data>
+  <data name="PreferencesSettingBackupInterval" xml:space="preserve">
+    <value>Auto-Backup Interval</value>
+    <comment>Setting menu | Auto-Backup Interval</comment>
+  </data>
+    <data name="PreferencesSettingMaxRecentFiles" xml:space="preserve">
+    <value>Maximum Number of Recent Files</value>
+    <comment>Setting menu | Maximum Number of Recent Files</comment>
+  </data>
+  <data name="BackupInternalUnit" xml:space="preserve">
+    <value>Minute(s) between backups</value>
+  </data>
+  <data name="PythonTemplateAddPathTooltip" xml:space="preserve">
+    <value>Add a file path for Python Node Template</value>
+  </data>
+  <data name="AddFilePathButtonName" xml:space="preserve">
+    <value>Add File Path</value>
   </data>
 </root>

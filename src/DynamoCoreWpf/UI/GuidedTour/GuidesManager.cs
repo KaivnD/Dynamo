@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using Dynamo.Controls;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Properties;
 using Dynamo.Wpf.ViewModels.GuidedTour;
@@ -193,7 +194,10 @@ namespace Dynamo.Wpf.UI.GuidedTour
                 guideBackgroundElement.Visibility = Visibility.Visible;
                 currentGuide.GuideBackgroundElement = guideBackgroundElement;
                 currentGuide.MainWindow = mainRootElement;
-                currentGuide.LibraryView = GuideUtilities.FindChild(mainRootElement, libraryViewName);
+                var dynamoView = (mainRootElement as DynamoView);
+                if (dynamoView == null) return;
+                currentGuide.LibraryView = dynamoView.sidebarGrid.Children.OfType<UserControl>().FirstOrDefault();
+
                 currentGuide.Initialize();
                 currentGuide.Play();
                 GuidesValidationMethods.CurrentExecutingGuide = currentGuide;
@@ -430,6 +434,17 @@ namespace Dynamo.Wpf.UI.GuidedTour
             var formattedText = Res.ResourceManager.GetString(jsonStepInfo.StepContent.FormattedText);
             var title = Res.ResourceManager.GetString(jsonStepInfo.StepContent.Title);
 
+            DirectoryInfo userDataFolder = null;
+            if (dynamoViewModel != null)
+            {
+                var pathManager = dynamoViewModel.Model.PathManager;
+
+                //When executing Dynamo as Sandbox or inside any host like Revit, FormIt, Civil3D the WebView2 cache folder will be located in the AppData folder
+                var docsDir = new DirectoryInfo(pathManager.UserDataDirectory);
+                userDataFolder = docsDir.Exists ? docsDir : null;
+
+            }
+
             switch (jsonStepInfo.StepType)
             {
                 case Step.StepTypes.TOOLTIP:
@@ -446,6 +461,11 @@ namespace Dynamo.Wpf.UI.GuidedTour
                             Title = title
                         }
                     };
+                    var popupWindow = newStep.stepUIPopup as PopupWindow;
+                    if(popupWindow != null && hostControlInfo.HtmlPage != null && !string.IsNullOrEmpty(hostControlInfo.HtmlPage.FileName))
+                    {
+                        popupWindow.WebBrowserUserDataFolder = userDataFolder != null ? userDataFolder.FullName : string.Empty;
+                    }
                     break;
                 case Step.StepTypes.SURVEY:
                     newStep = new Survey(hostControlInfo, jsonStepInfo.Width, jsonStepInfo.Height)
